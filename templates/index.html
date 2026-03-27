@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>E-Library</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>📚 E-Library</h1>
+
+<div class="top-bar">
+  <input type="text" id="search" placeholder="Search books..." autocomplete="off">
+
+  {% if session.get('user') %}
+    <span>👋 {{ session['user'] }}</span>
+    <a href="/purchases">🛒 Purchases</a>
+    <a href="/logout">Logout</a>
+  {% else %}
+    <a href="/login">Login</a>
+  {% endif %}
+
+  <a href="/profile">Profile</a>
+</div>
+
+<!-- 📚 BOOK LIST -->
+<div id="book-list">
+  {% for book in books %}
+    <div class="book">
+      <img src="{{ book['thumbnail'] }}">
+
+      <h3>{{ book['title'] }}</h3>
+      <p>{{ book['authors'] }}</p>
+      <p>⭐ {{ book['average_rating'] }}</p>
+
+      <p>💰 ₹{{ book['price'] }}</p>
+
+      <p>📄 Pages: {{ book['num_pages'] }}</p>
+      <p>📅 Year: {{ book['published_year'] }}</p>
+
+      <p>{{ book['description'][:100] }}...</p>
+
+      {% if book['is_available'] == 1 %}
+        <p class="available">Available ✅</p>
+        <a href="/issue/{{ book['isbn13'] }}"><button>Issue</button></a>
+        <a href="/buy/{{ book['isbn13'] }}"><button>Buy</button></a>
+      {% else %}
+        <p class="issued">Issued ❌</p>
+        <a href="/return/{{ book['isbn13'] }}"><button>Return</button></a>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+<!-- 🔍 LIVE SEARCH SCRIPT (FIXED) -->
+<script>
+const searchInput = document.getElementById("search");
+const container = document.getElementById("book-list");
+
+let timeout = null;
+
+searchInput.addEventListener("input", function () {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    const query = searchInput.value;
+
+    const res = await fetch("/search?q=" + query);
+    const data = await res.json();
+
+    container.innerHTML = "";
+
+    if (data.length === 0) {
+      const p = document.createElement("p");
+      p.textContent = "No books found ❌";
+      container.appendChild(p);
+      return;
+    }
+
+    data.forEach(book => {
+      const card = document.createElement("div");
+      card.className = "book";
+
+      card.innerHTML = `
+        <img src="${book.thumbnail}">
+        <h3>${book.title}</h3>
+        <p>${book.authors}</p>
+        <p>⭐ ${book.average_rating}</p>
+        <p>💰 ₹${book.price}</p>
+        <p>📄 Pages: ${book.num_pages}</p>
+        <p>📅 Year: ${book.published_year}</p>
+        <p>${book.description ? book.description.substring(0,100) : ""}...</p>
+      `;
+
+      const actions = document.createElement("div");
+
+      if (book.is_available == 1) {
+        actions.innerHTML = `
+          <p class="available">Available ✅</p>
+          <a href="/issue/${book.isbn13}"><button>Issue</button></a>
+          <a href="/buy/${book.isbn13}"><button>Buy</button></a>
+        `;
+      } else {
+        actions.innerHTML = `
+          <p class="issued">Issued ❌</p>
+          <a href="/return/${book.isbn13}"><button>Return</button></a>
+        `;
+      }
+
+      card.appendChild(actions);
+      container.appendChild(card);
+    });
+
+  }, 300);
+});
+</script>
+
+</body>
+</html>

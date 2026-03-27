@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Purchases</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>🛒 My Purchases</h1>
+
+{% for p in purchases %}
+  <div class="book">
+    <p>ISBN: {{ p['isbn'] }}</p>
+    <p>💰 ₹{{ p['price'] }}</p>
+    <p>Date: {{ p['purchase_date'] }}</p>
+  </div>
+{% endfor %}
+
+<a href="/">⬅ Back</a>
+
+</body>
+</html>

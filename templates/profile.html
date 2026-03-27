@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="profile-box">
+
+  <h1>👤 Profile</h1>
+
+  <p><b>Name:</b> {{ session['user'] }}</p>
+  <p><b>Role:</b> {{ session['role'] }}</p>
+
+  <hr>
+
+  <h3>📊 Stats</h3>
+  <p>🛒 Purchased Books: {{ purchase_count }}</p>
+
+  <hr>
+
+  <h3>🛒 Purchase History</h3>
+
+  {% for p in purchases %}
+    <div class="purchase-card">
+      <h4>{{ p['title'] }}</h4>
+      <p><b>ISBN:</b> {{ p['isbn'] }}</p>
+      <p>💰 ₹{{ p['price'] }}</p>
+      <p>📅 {{ p['purchase_date'] }}</p>
+    </div>
+  {% else %}
+    <p>No purchases yet</p>
+  {% endfor %}
+
+  <br>
+  <a href="/">⬅ Back to Home</a>
+
+</div>
+
+</body>
+</html>
